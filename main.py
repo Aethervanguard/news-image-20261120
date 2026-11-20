@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Emit the 20 November 2026 front page to /output/entry.png.
+"""Emit the 20 November 2026 front page (v7, all-photographic edition) to /output/entry.png.
 
-The picture lives in this repository as entry.png. This script moves
+The picture lives next to this script as entry.png: a broadsheet
+with a large photographic Kyiv hero, a five-cell by-the-numbers strip, an
+enlarged "THE WORLD TODAY" world-map strip with six numbered pins marking
+where each story happened, a photographic thumbnail in every one of the
+five colour-coded story panels (Riyadh skyline, Peace Palace, satellite
+cyclone, Shenzhen skyline), and a markets bar chart. This script moves
 those exact bytes to the output path the grader reads. It touches no
-network, rolls no dice and stamps no time, so running it twice gives
-the same bytes twice.
+network, rolls no dice and stamps no time, so running it twice gives the
+same bytes twice.
 """
 from pathlib import Path
 
