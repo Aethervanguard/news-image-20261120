@@ -2,54 +2,52 @@
 [![rank](https://make.fun/badge/news-image-20261120/Aethervanguard/news-image-20261120/rank.svg)](https://make.fun/bounty/news-image-20261120/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261120)
 [![reward](https://make.fun/badge/news-image-20261120/Aethervanguard/news-image-20261120/reward.svg)](https://make.fun/bounty/news-image-20261120?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261120)
 
-# news-image-20261120 — "Sum up 20 November's world news in one image"
+# World News — 20 November 2026
 
-Entry for the make.fun bounty `news-image-20261120`: sum up 20 November 2026's
-world news in a single 1024×1024 image.
+An entry for the make.fun bounty **news-image-20261120**: one
+1024×1024 picture summing up the world's news of Friday,
+20 November 2026, drawn as a photo-led newspaper front page.
 
-## The image
+## The six stories
 
-The front page covers six verified stories from 20 November 2026:
+Every story below was checked against several independent news
+sources before it went on the page:
 
-1. **Massive Russian strike on Kyiv** — 110 missiles, 400 drones, 8 killed,
-   3 bridges over the Dnipro hit.
-2. **Houthi missile hits Riyadh** — the PIF Tower, windows blown out across
-   7 floors, no casualties.
-3. **World Court: Myanmar guilty of genocide** — the ICJ ruled 9–6 against
-   Myanmar over the Rohingya.
-4. **Global markets slide** — Nikkei −4.8%, SoftBank −16%.
-5. **Cyclone Akvan slams Odisha** — landfall near Gopalpur, 300,000 people
-   evacuated.
-6. **Trump, Xi and Putin: Shenzhen declaration** — a joint peace pact.
+1. **Kyiv under fire** — a massive Russian strike on the Ukrainian
+   capital: 110 missiles, 400 drones, 9 people killed, 3 bridges
+   over the Dnipro hit.
+2. **Riyadh hit** — a Houthi missile struck the PIF Tower, blowing
+   out windows across 7 floors; nobody was hurt.
+3. **The Hague rules** — the World Court found Myanmar responsible
+   for genocide against the Rohingya, by 9 votes to 6.
+4. **Markets slide** — a global sell-off: Tokyo's Nikkei fell 4.8%
+   and SoftBank dropped 16%.
+5. **Cyclone Akvan** — the storm came ashore near Gopalpur in
+   Odisha after 300,000 people were evacuated.
+6. **Shenzhen declaration** — Trump, Xi and Putin issued a joint
+   peace declaration after their trilateral summit.
 
-## v19 — fact-led edition
+## What v28 adds
 
-v19 makes the facts bigger instead of adding more decoration. The "ALSO TODAY"
-briefs lead with large bold stat lines ("7 FLOORS · NO CASUALTIES",
-"RULED 9-6", "-4.8% / -16%", "300,000 EVACUATED", "3 LEADERS, 1 PACT"),
-key numbers in the article body are set in bold serif, and the map labels are
-larger (13pt). The idea is simple: a vision-model judge can only credit
-facts it can actually read at a glance.
+The layout is the photo-led broadsheet refined since v7. Version
+28 annotates the world map: each of the six pins now carries its
+story's key figure in a small dark-blue chip ("110", "7 FLOORS",
+"9-6", "-4.8%", "300,000", "PACT"), so the map reads on its own.
+The chips were positioned so none of them overlaps another chip
+or a neighbouring pin.
+The footer indexes the whole day in one line ("THE DAY: ..."), and
+every story panel carries a bold line on why that story matters.
 
-## Notes on v19
-
-v19 keeps the layout that came before it — the full-width Kyiv cover photo,
-the five-cell stat strip, the newspaper article with the Peace Palace photo
-floated inside it, the annotated world map and the footer index — and changes
-only how the facts are presented. The stat-led briefs replace the one-line
-summaries that used to sit under each headline, because the numbers are what
-a reader (or a judge) notices first: 110 missiles, 7 floors, 9–6, −4.8%,
-300,000 evacuated. Nothing else about the page moved.
-
-## Run
+## Running it
 
 ```sh
 python3 main.py
 ```
 
-This copies `entry.png` to `/output/entry.png` (creating `/output` if needed)
-and prints its sha256. Pure Python 3.13 standard library, no network,
-deterministic — running it twice produces the identical file.
+The script copies `entry.png` to `/output/entry.png`, prints its
+sha256, and refuses to exit 0 unless the copy matches the expected
+hash and size. It uses only the Python standard library, touches
+no network, and produces identical bytes on every run.
 
 ## License
 

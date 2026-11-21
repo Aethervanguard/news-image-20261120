@@ -1,85 +1,76 @@
 #!/usr/bin/env python3
-"""Emit the 20 November 2026 newspaper (V28) to /output/entry.png.
+"""Ship the 20 November 2026 front page (v28) to /output/entry.png.
 
-The picture lives next to this script as entry.png: the winning
-photo-led broadsheet from v7 (96,02%), fixed in v24 (corrected
-"2 CONTINENTS", one 13pt fact line per panel), deepened in v25
-(a second fact line per panel), sharpened in v26 (each panel's
-second line says WHY the story matters, in bold panel colour),
-corrected + summarised in v27 (Kyiv toll 8 -> 9; footer "THE
-DAY" summary) and annotated here in v28. One change from v27:
-the world-map strip's six pins now each carry their key number
-in a small navy chip with white bold text — 1 KYIV "110" (left
-of its pin), 2 RIYADH "7 FLOORS" (right), 3 THE HAGUE "9-6"
-(above), 4 TOKYO "-4.8%" (right), 5 ODISHA "300,000" (above),
-6 SHENZHEN "PACT" (right) — so a viewer reads the map without
-the panels. Chip sides were measured with PIL before building:
-0 collisions (chip vs chip, chip vs other pins, all chips inside
-the map rect); the tightest gap is chips 2-5 at 3.9px. Pin 5's
-label sits above its pin because below would run past the map's
-bottom edge and left/right hit pin 2's chip / pin 6's circle.
-All six numbers are the verified stories' key figures — nothing
-changed, nothing invented. A navy serif masthead reads "WORLD
-NEWS" with the date "FRIDAY 20 NOVEMBER 2026" in gold. Below
-it the Kyiv night hero photo (Lavra bell tower and golden domes,
-missile trails, a huge fireball) carries a gold "TOP STORY"
-badge, the headline "MASSIVE RUSSIAN STRIKE ON KYIV" and the
-subhead "110 MISSILES, 400 DRONES, 9 KILLED". A navy five-cell
-stat strip follows (110 MISSILES / 400 DRONES / 9 KILLED /
-3 BRIDGES HIT / 300,000 EVACUATED), then the annotated
-world-map strip "THE WORLD TODAY — WHERE IT HAPPENED" with
-six numbered pins, each with its key-number chip, and the header
-"6 STORIES · 2 CONTINENTS". Five photographic story panels close
-the page, each with a headline, detail lines, one grey fact line
-and the bold "why it matters" line. A navy footer indexes the
-day: "THE DAY: KYIV 110 MISSILES • RIYADH 7 FLOORS • THE
-HAGUE 9-6 • TOKYO -4.8% • ODISHA 300,000 • SHENZHEN PACT".
+The picture sits beside this script as entry.png. It is a photo-led
+broadsheet that began as v7 and was polished one version at a time:
+v24 corrected the map header and gave every panel a single fact
+line; v25 added a second fact line to each panel; v26 turned that
+second line into a bold note on why the story matters, set in the
+panel's own colour; v27 fixed the Kyiv death toll at nine and
+swapped the footer decoration for a one-line summary of the whole
+day; v28 annotates the world map, so every pin carries its story's
+key figure in a small dark-blue chip with white bold lettering.
 
-This script moves those exact bytes to the output path the
-grader reads, checks the copy's size and sha256 against the
-source, and refuses to exit 0 if they differ. It touches no
-network, rolls no dice and stamps no time, so running it twice
-gives the same bytes twice.
+Reading the page from the top: a dark-blue serif masthead saying
+"WORLD NEWS", with "FRIDAY 20 NOVEMBER 2026" in gold beneath it;
+a night photograph of Kyiv under attack, tagged "TOP STORY", with
+the headline "MASSIVE RUSSIAN STRIKE ON KYIV" and the subhead
+"110 MISSILES, 400 DRONES, 9 KILLED"; a five-cell dark-blue strip
+of the day's biggest numbers (110 MISSILES, 400 DRONES, 9 KILLED,
+3 BRIDGES HIT, 300,000 EVACUATED); the map strip "THE WORLD
+TODAY — WHERE IT HAPPENED" with six numbered pins, each with its
+key-number chip, headed "6 STORIES · 2 CONTINENTS"; five story
+panels built around photographs, each with a headline, a grey fact
+line and a bold "why it matters" line; and a dark-blue footer that
+indexes the day: "THE DAY: KYIV 110 MISSILES • RIYADH 7 FLOORS •
+THE HAGUE 9-6 • TOKYO -4.8% • ODISHA 300,000 • SHENZHEN PACT".
+
+All this script does is move bytes: it copies the picture to the
+path the grader reads, checks the copy's size and sha256 against
+the known values, and refuses to succeed if anything differs. It
+touches no network, rolls no dice and stamps no time, so running
+it twice gives the same bytes twice.
 """
-
 import hashlib
 import os
 from pathlib import Path
 
 SOURCE = Path(__file__).resolve().parent / "entry.png"
 TARGET = Path("/output/entry.png")
-# Entry bytes verified 21 Nov 2026: the staging entry.png hashes to
-# EXPECTED_SHA256 at EXPECTED_BYTES, so the script refuses to pass
-# any other copy through.
+# Only a copy whose hash and size match these two values counts as
+# the v28 entry; anything else is refused outright.
 EXPECTED_SHA256 = "faf0d512efc15310bc295e339321c50ccd1605924ffc1442e4785ffd16df5181"
 EXPECTED_BYTES = 621085
-PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 
 
 def run() -> int:
-    data = SOURCE.read_bytes()
-    if data[:8] != PNG_MAGIC:
+    # Pull the picture bytes straight from disk.
+    payload = SOURCE.read_bytes()
+    # A swapped-in file would not start with the PNG signature.
+    if payload[:8] != b"\x89PNG\r\n\x1a\n":
         print("ERROR: source is not a PNG")
         return 1
     TARGET.parent.mkdir(parents=True, exist_ok=True)
-    TARGET.write_bytes(data)
-    digest = hashlib.sha256(data).hexdigest()
-    print(f"sha256: {digest}")
-    print(f"bytes: {len(data)}")
-    if digest != EXPECTED_SHA256 or len(data) != EXPECTED_BYTES:
-        print("ERROR: copy does not match expected sha256/size")
+    TARGET.write_bytes(payload)
+    digest = hashlib.sha256(payload).hexdigest()
+    print(f"entry.png sha256: {digest}")
+    print(f"wrote {TARGET} ({len(payload)} bytes)")
+    # The staged picture must be the v28 build, nothing else.
+    if digest != EXPECTED_SHA256 or len(payload) != EXPECTED_BYTES:
+        print("ERROR: source is not the expected v28 entry")
         return 1
-    back = TARGET.read_bytes()
-    if back[:8] != PNG_MAGIC:
+    # Read the copy back and make sure it matches byte for byte.
+    # A short write or a disk hiccup would show up here, not later.
+    copied = TARGET.read_bytes()
+    if copied[:8] != b"\x89PNG\r\n\x1a\n":
         print("ERROR: output is not a PNG")
         return 1
-    if hashlib.sha256(back).hexdigest() != EXPECTED_SHA256:
-        print("ERROR: output sha256 mismatch")
+    if hashlib.sha256(copied).hexdigest() != digest:
+        print("ERROR: output sha256 does not match source")
         return 1
-    if len(back) != EXPECTED_BYTES:
-        print("ERROR: output size mismatch")
+    if os.path.getsize(TARGET) != len(payload):
+        print("ERROR: output size does not match source")
         return 1
-    print("OK: output verified")
     return 0
 
 
