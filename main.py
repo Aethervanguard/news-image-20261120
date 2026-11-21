@@ -41,47 +41,45 @@ source, and refuses to exit 0 if they differ. It touches no
 network, rolls no dice and stamps no time, so running it twice
 gives the same bytes twice.
 """
+
 import hashlib
 import os
 from pathlib import Path
 
 SOURCE = Path(__file__).resolve().parent / "entry.png"
 TARGET = Path("/output/entry.png")
-# Expected v28 entry, built by build_v28.py (3 runs, identical sha):
-# sha256 faf0d512efc15310bc295e339321c50ccd1605924ffc1442e4785ffd16df5181
+# Entry bytes verified 21 Nov 2026: the staging entry.png hashes to
+# EXPECTED_SHA256 at EXPECTED_BYTES, so the script refuses to pass
+# any other copy through.
 EXPECTED_SHA256 = "faf0d512efc15310bc295e339321c50ccd1605924ffc1442e4785ffd16df5181"
 EXPECTED_BYTES = 621085
+PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 
 
 def run() -> int:
-    # Byte-for-byte copy: the grader runs this twice and both runs
-    # must agree, so there is deliberately nothing here that can vary.
-    payload = SOURCE.read_bytes()
-    # Sanity: the source must be a PNG (magic bytes), not a stray file.
-    if payload[:8] != b"\x89PNG\r\n\x1a\n":
+    data = SOURCE.read_bytes()
+    if data[:8] != PNG_MAGIC:
         print("ERROR: source is not a PNG")
         return 1
     TARGET.parent.mkdir(parents=True, exist_ok=True)
-    TARGET.write_bytes(payload)
-    digest = hashlib.sha256(payload).hexdigest()
-    print(f"entry.png sha256: {digest}")
-    print(f"wrote {TARGET} ({len(payload)} bytes)")
-    # The staged entry.png must be the v28 build; refuse a swapped file.
-    if digest != EXPECTED_SHA256 or len(payload) != EXPECTED_BYTES:
-        print("ERROR: source is not the expected v28 entry")
+    TARGET.write_bytes(data)
+    digest = hashlib.sha256(data).hexdigest()
+    print(f"sha256: {digest}")
+    print(f"bytes: {len(data)}")
+    if digest != EXPECTED_SHA256 or len(data) != EXPECTED_BYTES:
+        print("ERROR: copy does not match expected sha256/size")
         return 1
-    # Verify the copy matches the source byte for byte, and that
-    # the copy is itself a PNG (not a truncated write).
-    copied = TARGET.read_bytes()
-    if copied[:8] != b"\x89PNG\r\n\x1a\n":
+    back = TARGET.read_bytes()
+    if back[:8] != PNG_MAGIC:
         print("ERROR: output is not a PNG")
         return 1
-    if hashlib.sha256(copied).hexdigest() != digest:
-        print("ERROR: output sha256 does not match source")
+    if hashlib.sha256(back).hexdigest() != EXPECTED_SHA256:
+        print("ERROR: output sha256 mismatch")
         return 1
-    if os.path.getsize(TARGET) != len(payload):
-        print("ERROR: output size does not match source")
+    if len(back) != EXPECTED_BYTES:
+        print("ERROR: output size mismatch")
         return 1
+    print("OK: output verified")
     return 0
 
 
